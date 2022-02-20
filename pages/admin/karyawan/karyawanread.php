@@ -30,12 +30,12 @@
             ?>
             <div class="row mb-2">
                 <div class="col-sm-6">
-                    <h1 class="m-0">Lokasi</h1>
+                    <h1 class="m-0">Karyawan</h1>
                 </div><!-- /.col -->
                 <div class="col-sm-6">
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Lokasi</li>
+                        <li class="breadcrumb-item active">Karyawan</li>
                     </ol>
                 </div><!-- /.col -->
             </div><!-- /.row -->
@@ -47,8 +47,8 @@
     <div class="content">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Data Lokasi</h3>
-                <a href="?page=lokasicreate" class="btn btn-success btn-sm float-right">
+                <h3 class="card-title">Data Karyawan</h3>
+                <a href="?page=karyawancreate" class="btn btn-success btn-sm float-right">
                     <i class="fa fa-plus-circle"></i> Tambah Data
                 </a>
             </div>
@@ -57,15 +57,21 @@
                 <table id="mytable" class="table table-bordered table-hover">
                     <thead>
                         <tr>
-                            <th>No</th>
-                            <th>Nama Lokasi</th>
+                            <th>NO.</th>
+                            <th>NIK</th>
+                            <th>Nama Karyawan</th>
+                            <th>Bagian</th>
+                            <th>Jabatan</th>
                             <th>Opsi</th>
                         </tr>
                     </thead>
                     <tfoot>
                         <tr>
-                            <th>No</th>
-                            <th>Nama Lokasi</th>
+                            <th>NO.</th>
+                            <th>NIK</th>
+                            <th>Nama Karyawan</th>
+                            <th>Bagian</th>
+                            <th>Jabatan</th>
                             <th>Opsi</th>
                         </tr>
                     </tfoot>
@@ -76,7 +82,19 @@
                         $database = new Database;
                         $db = $database->getConnection();
 
-                        $selectSql = "SELECT * FROM lokasi";
+                        $selectSql = "SELECT K.*,
+                            (
+                            SELECT J.nama_jabatan FROM jabatan_karyawan AS JK
+                            JOIN jabatan AS J ON JK.jabatan_id = J.id
+                            WHERE JK.karyawan_id = K.id ORDER BY JK.tanggal_mulai DESC LIMIT 1
+                            ) AS jabatan_terkini,	
+                            (
+                            SELECT B.nama_bagian FROM bagian_karyawan AS BK
+                            JOIN bagian AS B ON BK.bagian_id = b.id
+                            WHERE BK.karyawan_id = K.id ORDER BY BK.tanggal_mulai DESC LIMIT 1
+                            ) AS bagian_terkini
+                            
+                            FROM karyawan AS K";
 
                         $stmt = $db->prepare($selectSql);
                         $stmt->execute();
@@ -87,7 +105,10 @@
                         ?>
                             <tr>
                                 <td><?= $no++ ?> </td>
-                                <td><?= $row['nama_lokasi'] ?></td>
+                                <td><?= $row['nik'] ?></td>
+                                <td><?= $row['nama_lengkap'] ?></td>
+                                <td><?= $row['bagian_terkini'] ?></td>
+                                <td><?= $row['jabatan_terkini'] ?></td>
                                 <td>
                                     <a href="?page=lokasiupdate&id=<?= $row['id'] ?>" class="btn btn-primary btn-sm mr-1">
                                         <i class="fa fa-edit"></i> Ubah
